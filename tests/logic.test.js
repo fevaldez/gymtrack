@@ -242,14 +242,14 @@ test('155 lbs → [45, 10] por lado', () => {
   expect(plates).toEqual([45, 10]);
 });
 
-test('100 lbs → [25, 5] por lado', () => {
+test('100 lbs → [25, 2.5] por lado', () => {
   const plates = calcPlates(100);
-  expect(plates).toEqual([25, 5]);
+  expect(plates).toEqual([25, 2.5]);
 });
 
-test('95 lbs → [25, 2.5] por lado', () => {
+test('95 lbs → [25] por lado', () => {
   const plates = calcPlates(95);
-  expect(plates).toEqual([25, 2.5]);
+  expect(plates).toEqual([25]);
 });
 
 test('45 lbs (solo barra) → [] sin placas', () => {

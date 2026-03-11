@@ -1,0 +1,248 @@
+export const PLC = { 45:"#7C3AED",35:"#2563EB",25:"#16A34A",10:"#D97706",5:"#DC2626",2.5:"#71717A" };
+
+export const BAR_OPTIONS = [
+  { label:"Olímpica", weight:45 },
+  { label:"Smith",    weight:15 },
+  { label:"Damas",   weight:35 },
+  { label:"Sin barra", weight:0 },
+];
+
+export const PLATE_DENOMINATIONS = [45, 35, 25, 10, 5, 2.5];
+
+export const ROUTINES = {
+  pecho: {
+    id:"pecho",label:"Pecho + Tríceps",sub:"Fuerza + Volumen",icon:"◈",clr:"#F59E0B",grd:"rgba(245,158,11,0.07)",
+    cutTime:{"45":["blk_F"],"30":["blk_E","blk_E3","blk_F"]},bjjCut:["PE3"],
+    bloques:[
+      { id:"blk_A",label:"Activación (Biserie)",tipo:"biserie",rest:30,ejercicios:[
+        { id:"PA1",nombre:"Face Pull",desc:"polea, ligero",s:2,rMin:15,rMax:15,tempo:"2-1-2-1",rir:3,bar:false,
+          cue:"Lleva cuerda a cejas/nariz, hombros lejos de orejas, abre clavículas.",swaps:[] },
+        { id:"PA2",nombre:"Cable Chest Press ligero",desc:"activación pecho",s:2,rMin:12,rMax:12,tempo:"2-0-2-0",rir:3,bar:false,
+          cue:"No busques fatiga; solo activar pecho con hombro estable.",swaps:[] },
+      ]},
+      { id:"blk_B",label:"Fuerza Principal",tipo:"normal",rest:90,ejercicios:[
+        { id:"PB",nombre:"Machine / Lever Chest Press plano",desc:"fuerza base",s:4,rMin:5,rMax:7,tempo:"3-1-1-0",rir:1,bar:false,
+          cue:"Asiento a línea media del pecho; pausa real abajo; no bloquees codos.",swaps:[] },
+      ]},
+      { id:"blk_C",label:"Fuerza Secundaria",tipo:"normal",rest:90,ejercicios:[
+        { id:"PC",nombre:"Smith Bench Press plano",desc:"fuerza secundaria",s:3,rMin:6,rMax:8,tempo:"3-1-1-0",rir:1,bar:false,
+          cue:"Baja a pecho bajo, codos 30–45°, muñecas neutras, cero rebote.",
+          swaps:["Machine Chest Press pesada — mejor reemplazo si Smith ocupada","Cable Bench Press — mantén tensión continua, controla más la bajada","Standing Single-Arm Cable Press — split stance, abdomen firme, no gires torso"] },
+      ]},
+      { id:"blk_D",label:"Biserie Pecho + Tríceps",tipo:"biserie",rest:60,ejercicios:[
+        { id:"PD1",nombre:"Smith Bench Press volumen",desc:"hipertrofia pecho",s:3,rMin:8,rMax:10,tempo:"2-0-2-0",rir:2,bar:false,
+          cue:"Usa menos carga que en C; aquí manda control, tensión y densidad.",
+          swaps:["Cable Bench Press — mejor reemplazo de D1 si Smith ocupada","Standing Cable Press — muy práctico cuando Rush está lleno","Machine Chest Press moderada — máxima estabilidad, cero complicación","Cable Single-Arm Bench Press — control unilateral y balance entre lados"] },
+        { id:"PD2",nombre:"Rope Triceps Pushdown",desc:"tríceps biserie",s:4,rMin:10,rMax:12,tempo:"2-0-2-1",rir:2,bar:false,
+          cue:"Codos pegados; separa la cuerda abajo y aprieta 1s.",swaps:[] },
+      ]},
+      { id:"blk_E",label:"Biserie Congestión Final",tipo:"biserie",rest:45,ejercicios:[
+        { id:"PE1",nombre:"Cable Fly rango corto seguro",desc:"congestión pecho",s:3,rMin:12,rMax:15,tempo:"2-1-2-0",rir:2,bar:false,
+          cue:"No abras de más; piensa en abrazar, no en estirar profundo.",swaps:[] },
+        { id:"PE2",nombre:"Single-Arm Cross Pushdown",desc:"congestión tríceps",s:3,rMin:12,rMax:15,tempo:"2-1-2-0",rir:2,bar:false,perSide:true,
+          cue:"Hombro quieto, cero balanceo, recorrido corto y limpio.",swaps:[] },
+      ]},
+      { id:"blk_E3",label:"Tríceps Opcional",tipo:"normal",rest:45,ejercicios:[
+        { id:"PE3",nombre:"Reverse-Grip Pushdown",desc:"solo si terminaste bien y hombro OK",s:2,rMin:12,rMax:15,tempo:"2-1-2-0",rir:2,bar:false,
+          defaultSkip:true,cue:"Hazlo estricto, ligero-moderado; busca bombeo, no ego.",
+          swaps:["Cable Kickback — mismas reglas, busca bombeo"] },
+      ]},
+      { id:"blk_F",label:"Enfriamiento",tipo:"normal",rest:20,ejercicios:[
+        { id:"PF1",nombre:"Respiración nasal / downregulation",desc:"1–2 min",s:1,rMin:60,rMax:120,tempo:"—",rir:4,bar:false,noLog:true,
+          cue:"Exhala largo para bajar pulsaciones y acelerar recuperación.",swaps:[] },
+        { id:"PF2",nombre:"Retracción / depresión escapular suave",desc:"movilidad",s:2,rMin:10,rMax:15,tempo:"controlado",rir:4,bar:false,noLog:true,
+          cue:"Movimiento corto, limpio, sin agresividad.",swaps:[] },
+        { id:"PF3",nombre:"Estiramiento de pecho en pared",desc:"20–30s/lado",s:2,rMin:20,rMax:30,tempo:"—",rir:4,bar:false,perSide:true,noLog:true,
+          cue:"Brazo a 45°, debe estirar pecho, no jalar hombro anterior.",swaps:[] },
+        { id:"PF4",nombre:"Estiramiento dorsal suave / child's pose en banco",desc:"20–30s",s:2,rMin:20,rMax:30,tempo:"—",rir:4,bar:false,noLog:true,
+          cue:"Costillas controladas, sin colapsar lumbar.",swaps:[] },
+      ]},
+    ]
+  },
+  espalda: {
+    id:"espalda",label:"Espalda",sub:"+ Bíceps",icon:"⬡",clr:"#3B82F6",grd:"rgba(59,130,246,0.07)",
+    cutTime:{"45":["FIN","BIC"],"30":["FIN","BIC","EST"]},bjjCut:["EBIC2"],
+    bloques:[
+      { id:"WE",label:"Calentamiento",tipo:"calentamiento",rest:0,ejercicios:[
+        { id:"EW1",nombre:"T-Spine Rotations",desc:"En banco",s:1,rMin:8,rMax:8,tempo:"2-0-2-0",rir:null,bar:false,noLog:true,
+          cue:"Cadera QUIETA · rota solo desde torácica · asistencia con mano libre",
+          swaps:["Cat-Cow en suelo","Thread the Needle","Foam Roller Thoracic"] },
+        { id:"EW2",nombre:"Band External Rotation",desc:"Codo pegado · activación",s:2,rMin:15,rMax:20,tempo:"2-1-2-1",rir:4,bar:false,
+          cue:"Sin dolor articular · quema en manguito rotador · NO hombro anterior",
+          swaps:["Cable External Rotation","DB External Rotation","Side-lying ER"] },
+      ]},
+      { id:"EACT",label:"Activación Escápula",tipo:"normal",rest:45,ejercicios:[
+        { id:"EACT1",nombre:"Scap Pull-ups / Scap Hang",desc:"Solo movimiento de escápula",s:2,rMin:8,rMax:10,tempo:"2-1-2-1",rir:3,bar:false,
+          cue:"Codos RECTOS · deprime hombros · NO encoja trapecios · movimiento puro",
+          swaps:["Scap Push-ups","Band Pull-Apart","Prone Y-T-W"] },
+      ]},
+      { id:"EF1",label:"Fuerza 1",tipo:"normal",rest:90,ejercicios:[
+        { id:"EF1a",nombre:"Chest-Supported Neutral Row",desc:"Máquina o banco inclinado",s:4,rMin:6,rMax:8,tempo:"2-1-1-1",rir:2,bar:false,
+          cue:"Manos = GANCHO · codo hacia bolsillo trasero · 1s iso en contracción",
+          swaps:["Seated Cable Row","Barbell Row Pendlay","DB Row pecho en banco"] },
+      ]},
+      { id:"EF2",label:"Fuerza 2",tipo:"normal",rest:68,ejercicios:[
+        { id:"EF2a",nombre:"Half-Kneeling 1-Arm Lat Pulldown",desc:"Polea alta · D-handle",s:3,rMin:8,rMax:10,tempo:"2-1-2-1",rir:2,bar:false,perSide:true,
+          cue:"PRIMERO deprime escápula → LUEGO jalas · codo hacia hip al final",
+          swaps:["Lat Pulldown neutral","Assisted Pull-up","Straight-Arm Cable Pulldown"] },
+      ]},
+      { id:"EUNI",label:"Unilateral",tipo:"normal",rest:75,ejercicios:[
+        { id:"EUNI1",nombre:"Meadows Row Landmine",desc:"1 brazo · agarre pronado",s:3,rMin:8,rMax:10,tempo:"2-1-1-1",rir:2,bar:false,perSide:true,
+          cue:"Agarre PRONADO detrás de los discos · jalón diagonal hacia cadera",
+          swaps:["Single-Arm Cable Row alto","Single-Arm DB Row","Half-Kneeling Cable Row"] },
+      ]},
+      { id:"EVOL",label:"Volumen",tipo:"normal",rest:60,ejercicios:[
+        { id:"EVOL1",nombre:"Seated Cable Row",desc:"Iso-hold 2s en contracción",s:3,rMin:10,rMax:12,tempo:"2-2-1-1",rir:2,bar:false,
+          cue:"2s apretando escápulas · CERO columpio · controla la excéntrica",
+          swaps:["Machine Row","Resistance Band Row","DB Row bilateral"] },
+      ]},
+      { id:"EST",label:"Estabilidad",tipo:"normal",rest:45,ejercicios:[
+        { id:"EEST1",nombre:"Reverse Pec Deck",desc:"Reverse Fly machine",s:3,rMin:12,rMax:15,tempo:"2-1-2-1",rir:3,bar:false,
+          cue:"Pecho FIJO al pad · cuello largo · NO trapecios · retrae escápulas",
+          swaps:["Rear Delt Cable Fly","Band Pull-Apart","Face Pull bajo"] },
+        { id:"EEST2",nombre:"Face Pull Polea Alta",desc:"Cable · polea alta",s:3,rMin:15,rMax:20,tempo:"2-1-2-1",rir:3,bar:false,
+          cue:"Termina con rotación externa · pulgares ATRÁS · codos arriba al final",
+          swaps:["Band Face Pull","Rear Delt DB Raise","Cable External Rotation"] },
+      ]},
+      { id:"BIC",label:"Bíceps",tipo:"normal",rest:53,ejercicios:[
+        { id:"EBIC1",nombre:"Cable Rope Hammer Curl",desc:"Agarre neutro",s:3,rMin:10,rMax:12,tempo:"2-0-2-1",rir:2,bar:false,
+          cue:"Muñeca NEUTRA (no gira) · codos pegados · pausa 1s arriba",
+          swaps:["DB Hammer Curl","Cable Bar Curl neutro","Cross-Body Hammer Curl"] },
+        { id:"EBIC2",nombre:"Preacher Curl Machine",desc:"O cable curl polea baja",s:2,rMin:12,rMax:15,tempo:"3-0-2-1",rir:2,bar:false,
+          cue:"NO rebotes al fondo · excéntrica 3s · pausa 1s arriba",
+          swaps:["EZ Bar Preacher Curl","DB Concentration Curl","Cable Curl polea baja"] },
+      ]},
+      { id:"FIN",label:"Finisher",tipo:"finisher",rest:38,ejercicios:[
+        { id:"EFIN1",nombre:"Straight-Arm Cable Pulldown",desc:"Finisher opcional",s:2,rMin:12,rMax:15,tempo:"2-1-2-1",rir:2,bar:false,
+          cue:"Brazos CASI rectos · dorsal puro · NO tríceps · arco hacia cadera",
+          swaps:["Lat Prayer cable","Straight-Arm DB Pullover","Cable Pullover machine"] },
+      ]},
+    ]
+  },
+  hombro: {
+    id:"hombro",label:"Hombros",sub:"Estabilidad + Fuerza",icon:"⬡",clr:"#10B981",grd:"rgba(16,185,129,0.07)",
+    cutTime:{"45":["HC","HFIN"],"30":["HB2","HC","HFIN"]},bjjCut:[],
+    bloques:[
+      { id:"HW1",label:"Activación Inicial · Biserie",tipo:"biserie",rest:35,ejercicios:[
+        { id:"HW1a",nombre:"Face Pull",desc:"Cable · INICIO · activación manguito",s:2,rMin:15,rMax:15,tempo:"2-1-1-1",rir:4,bar:false,
+          cue:"Codos ARRIBA · rotación externa al final · pulgares atrás · sin dolor",
+          swaps:["Band Face Pull","Cable Rear Delt Fly ligero","Prone Y-Raise"] },
+        { id:"HW1b",nombre:"Rotación Externa + Toalla",desc:"Banda/cable · INICIO · por lado",s:2,rMin:12,rMax:12,tempo:"3-0-1-1",rir:4,bar:false,perSide:true,
+          cue:"Codo pegado · rota hacia afuera · pausa 1s en rotación máxima · SIN dolor",
+          swaps:["DB External Rotation tumbado","Cable ER bajo","Band ER sentado"] },
+      ]},
+      { id:"HW2",label:"Activación · Serratus",tipo:"normal",rest:30,ejercicios:[
+        { id:"HW2a",nombre:"Serratus Wall Slides",desc:"Contra pared · 2 series",s:2,rMin:8,rMax:12,tempo:"2-1-1-1",rir:3,bar:false,
+          cue:"Empuja la pared activamente con codos · desliza LENTO · activa serrato",
+          swaps:["Floor Serratus Slides","Dead Bug brazos","Cable Serratus Press"] },
+      ]},
+      { id:"HW3",label:"Activación · Lateral",tipo:"normal",rest:30,ejercicios:[
+        { id:"HW3a",nombre:"Elevación Lateral Ligera",desc:"1 serie · activación deltoides",s:1,rMin:15,rMax:15,tempo:"2-0-1-1",rir:4,bar:false,
+          cue:"Muy ligero · codos ligeramente doblados · NO trapecios · solo deltoides medio",
+          swaps:["Cable Lateral Raise","Band Lateral Raise","DB Lateral muy ligero"] },
+      ]},
+      { id:"HA",label:"Fuerza Principal",tipo:"normal",rest:90,ejercicios:[
+        { id:"HA1",nombre:"DB Shoulder Press Neutro",desc:"Sentado · agarre neutro",s:4,rMin:6,rMax:8,tempo:"3-1-X-1",rir:2,bar:false,
+          cue:"Agarre NEUTRO (palmas frente a frente) · rango seguro · escápulas estables",
+          swaps:["Machine Shoulder Press","Cable Press neutro","Landmine Press bilateral"] },
+        { id:"HA2",nombre:"Landmine Press Unilateral",desc:"Por lado · explosivo arriba",s:4,rMin:8,rMax:8,tempo:"2-1-X-1",rir:2,bar:true,perSide:true,
+          cue:"Explosivo en concéntrica (X) · codo a 45° del torso · NO bloquees hombro arriba",
+          swaps:["Half-Kneeling Cable Press","DB Press 1 brazo","Single-Arm Machine Press"] },
+      ]},
+      { id:"HB1",label:"Hipertrofia B1",tipo:"biserie",rest:68,ejercicios:[
+        { id:"HB1a",nombre:"Lateral Raise Máquina/Cable",desc:"Deltoides medio · 10–12 reps",s:3,rMin:10,rMax:12,tempo:"2-0-1-1",rir:2,bar:false,
+          cue:"Codos ligeramente doblados · NO encoja trapecios · pausa 1s arriba",
+          swaps:["DB Lateral Raise","Band Lateral Raise","Cable Lateral Raise bajo"] },
+        { id:"HB1b",nombre:"Reverse Fly / Rear Delt Rush",desc:"Rear delt · 12–15 reps",s:3,rMin:12,rMax:15,tempo:"3-0-1-0",rir:2,bar:false,
+          cue:"Excéntrica controlada 3s · NO uses inercia · pecho fijo al pad",
+          swaps:["Cable Rear Delt Fly","Band Pull-Apart","Face Pull medio"] },
+      ]},
+      { id:"HB2",label:"Hipertrofia B2",tipo:"biserie",rest:53,ejercicios:[
+        { id:"HB2a",nombre:"Lateral Raise Parcial-Alargado",desc:"Rango bajo · estiramiento",s:2,rMin:12,rMax:15,tempo:"2-1-1-1",rir:2,bar:false,
+          cue:"Solo rango inferior 0–60° · énfasis en estiramiento · pausa 1s abajo",
+          swaps:["Cable Lateral Raise bajo","DB Lateral parcial","Band Lateral parcial"] },
+        { id:"HB2b",nombre:"Rear Delt Row Ligero",desc:"Cable · face pull alto",s:2,rMin:12,rMax:15,tempo:"2-1-1-1",rir:2,bar:false,
+          cue:"Agarre ancho · codo al nivel del hombro · SIN encogimiento de trapecios",
+          swaps:["Face Pull alto","Band Face Pull ancho","DB Rear Delt Row"] },
+      ]},
+      { id:"HC",label:"Estabilidad Final · Biserie · CIERRE",tipo:"biserie",rest:53,ejercicios:[
+        { id:"HC1a",nombre:"Face Pull Ligero",desc:"Cable · polea alta · CIERRE de sesión",s:2,rMin:12,rMax:15,tempo:"2-1-1-1",rir:3,bar:false,
+          cue:"Muy ligero · rotación externa al final · pulgares ATRÁS · codos arriba",
+          swaps:["Band Face Pull","Cable Rear Delt ligero","Prone Y-T-W"] },
+        { id:"HC1b",nombre:"Rotación Externa Ligera",desc:"Cable/banda · CIERRE · por lado",s:2,rMin:10,rMax:12,tempo:"3-0-1-1",rir:3,bar:false,perSide:true,
+          cue:"LIGERO · codo pegado · rota hacia afuera · pausa 1s · SIN dolor",
+          swaps:["DB External Rotation","Band ER","Side-lying ER sin peso"] },
+      ]},
+      { id:"HFIN",label:"Finisher · Pump",tipo:"finisher",rest:30,ejercicios:[
+        { id:"HFIN1",nombre:"Lateral Raise Máquina Ligero",desc:"Set 1: 18–20 · Set 2: 12–15",s:2,rMin:12,rMax:20,tempo:"2-0-1-1",rir:2,bar:false,
+          cue:"Solo si el hombro se siente MUY bien · pump final · NO aumentes carga",
+          swaps:["Cable Lateral Raise ligero","Band Lateral Raise pump","DB Lateral pump"] },
+      ]},
+    ]
+  },
+  brazos: {
+    id:"brazos",label:"Brazos",sub:"Bíceps + Tríceps + Antebrazo",icon:"⬡",
+    clr:"#EC4899",grd:"rgba(236,72,153,0.07)",
+    cutTime:{"45":["BD","FIN_B"],"30":["BD","FIN_B","CB"]},
+    bjjCut:["BD2"],
+    bloques:[
+      { id:"BW",label:"Warm Up",tipo:"calentamiento",rest:30,ejercicios:[
+        { id:"BW1",nombre:"Straight-Arm Cable Pulldown",desc:"Ligero · activación escapular",
+          s:2,rMin:15,rMax:15,tempo:"2-1-2-1",rir:4,bar:false,
+          cue:"Hombros ABAJO · pecho quieto · sin arquear lumbar · depresión escapular pura",
+          swaps:["Lat Prayer cable","Band Pulldown","DB Straight-Arm Pullover ligero"] },
+        { id:"BW2",nombre:"Isométrico Rotación Externa",desc:"Con toalla · codo pegado · 20s hold",
+          s:2,rMin:20,rMax:20,tempo:"sostenido",rir:null,bar:false,noLog:true,
+          cue:"Solo si NO molesta · codo pegado al torso · rotación suave hacia afuera",
+          swaps:["Band External Rotation muy ligero","Side-lying ER sin peso","Omitir si duele"] },
+      ]},
+      { id:"BA",label:"Fuerza A · Straight Sets",tipo:"normal",rest:90,ejercicios:[
+        { id:"BA1",nombre:"Cable Curl Barra EZ",desc:"4 series · fuerza bíceps",
+          s:4,rMin:6,rMax:8,tempo:"3-0-1-1",rir:2,bar:false,
+          cue:"Un paso ATRÁS · codos clavados · SIN balanceo · contracción completa al final",
+          swaps:["DB Curl estricto","Barbell Curl EZ","Cable Curl barra recta"] },
+        { id:"BA2",nombre:"Triceps Pressdown Barra/V",desc:"4 series · fuerza tríceps",
+          s:4,rMin:6,rMax:8,tempo:"2-0-1-1",rir:2,bar:false,
+          cue:"Codos al bolsillo · hombro NO se adelanta · lockout completo abajo",
+          swaps:["Triceps Pushdown cable","Overhead Triceps Extension","Close-Grip Bench"] },
+      ]},
+      { id:"BB_blk",label:"Volumen B · Biserie",tipo:"biserie",rest:68,ejercicios:[
+        { id:"BB1",nombre:"Cable Seated Curl",desc:"Frente a polea baja · tensión constante",
+          s:3,rMin:10,rMax:12,tempo:"3-1-1-1",rir:1,bar:false,
+          cue:"Espalda FIRME · pecho alto · tensión constante en todo el rango",
+          swaps:["Incline DB Curl","Cable Curl polea baja","Bayesian Curl"] },
+        { id:"BB2",nombre:"Rope Pushdown",desc:"Cable · cuerda · volumen tríceps",
+          s:3,rMin:10,rMax:12,tempo:"2-0-2-0",rir:1,bar:false,
+          cue:"Abre la cuerda al final · SIN subir hombros · codos fijos al torso",
+          swaps:["Bar Pushdown","V-Bar Pushdown","Single-Arm Pushdown"] },
+      ]},
+      { id:"CB",label:"Aislamiento C · Biserie",tipo:"biserie",rest:53,ejercicios:[
+        { id:"CB1",nombre:"Cable Preacher Curl",desc:"Long-length · pausa abajo",
+          s:3,rMin:12,rMax:15,tempo:"2-2-1-1",rir:1,bar:false,
+          cue:"Pausa ABAJO real (2s) · sin rebotes · contracción fuerte arriba",
+          swaps:["Machine Preacher Curl","DB Concentration Curl","EZ Preacher Curl"] },
+        { id:"CB2",nombre:"Cable Triceps Kickback Neutro",desc:"Aislamiento tríceps · un brazo",
+          s:3,rMin:12,rMax:15,tempo:"2-1-2-0",rir:1,bar:false,perSide:true,
+          cue:"Brazo PEGADO al torso · tronco estable · extensión completa · SIN overhead",
+          swaps:["Overhead Triceps Cable Ext","DB Kickback","Rope Kickback"] },
+      ]},
+      { id:"BD",label:"Antebrazo D · Straight Sets",tipo:"normal",rest:38,ejercicios:[
+        { id:"BD1",nombre:"Behind-the-Back Cable Wrist Curl",desc:"Antebrazo flexores",
+          s:2,rMin:15,rMax:20,tempo:"2-1-2-1",rir:2,bar:false,
+          cue:"Muñeca FUERTE · busca bombeo · SIN ego en el peso · rango completo",
+          swaps:["DB Wrist Curl","Barbell Wrist Curl","Plate Pinch"] },
+        { id:"BD2",nombre:"Cable Reverse Wrist Curl",desc:"Antebrazo extensores",
+          s:2,rMin:15,rMax:20,tempo:"2-1-2-1",rir:2,bar:false,
+          cue:"Movimiento corto y limpio · NO balancear el antebrazo · control puro",
+          swaps:["DB Reverse Wrist Curl","Barbell Reverse Wrist Curl","Band Reverse Wrist Curl"] },
+      ]},
+      { id:"FIN_B",label:"Finisher · Rest-Pause",tipo:"finisher",rest:20,ejercicios:[
+        { id:"BFIN1",nombre:"Rope Hammer Curl Rest-Pause",
+          desc:"1 activador 12–15 + mini series 4–5 reps · 25–35 reps total",
+          s:2,rMin:12,rMax:35,tempo:"controlado",rir:1,bar:false,
+          cue:"Solo si técnica LIMPIA · hombro estable · 15–20s entre mini series",
+          swaps:["DB Hammer Curl rest-pause","Cable Curl rest-pause","Omitir si hombro molesta"] },
+      ]},
+    ]
+  },
+};
