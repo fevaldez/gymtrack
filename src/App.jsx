@@ -16,6 +16,29 @@ if (typeof document !== "undefined") {
   document.head.appendChild(l);
 }
 
+function reorderPlan(plan, sessionOrder) {
+  if (!sessionOrder.length) return plan;
+  const runs = [];
+  let i = 0;
+  while (i < plan.length) {
+    const exIds = new Set([plan[i].ex.id]);
+    if (plan[i].biserie && i + 1 < plan.length && plan[i + 1].biserie) {
+      exIds.add(plan[i + 1].ex.id);
+    }
+    const run = [];
+    while (i < plan.length && exIds.has(plan[i].ex.id)) { run.push(plan[i]); i++; }
+    runs.push({ exIds: [...exIds], steps: run });
+  }
+  const visited = new Set();
+  const ordered = [];
+  for (const id of sessionOrder) {
+    const run = runs.find(r => r.exIds.includes(id) && !visited.has(r));
+    if (run) { ordered.push(run); visited.add(run); }
+  }
+  for (const run of runs) { if (!visited.has(run)) ordered.push(run); }
+  return ordered.flatMap(r => r.steps);
+}
+
 export default function App() {
   const [screen, setScreen] = useState("home");
   const [rid, setRid] = useState(null);
@@ -31,6 +54,10 @@ export default function App() {
   const [sessionOverride, setSessionOverride] = useState({});
   const [sessionLinks, setSessionLinks] = useState([]);
   const [linkingFrom, setLinkingFrom] = useState(null);
+  const [brokenLinks, setBrokenLinks] = useState(new Set());
+  const [sessionSwaps, setSessionSwaps] = useState({});
+  const [sessionOrder, setSessionOrder] = useState([]);
+  const [sessionOverrideReps, setSessionOverrideReps] = useState({});
   const startRef = useRef(null);
 
   useEffect(() => { loadGD().then(d => { setGd(d); setGdReady(true); }); }, []);
@@ -49,6 +76,10 @@ export default function App() {
     setSessionOverride({});
     setSessionLinks([]);
     setLinkingFrom(null);
+    setBrokenLinks(new Set());
+    setSessionSwaps({});
+    setSessionOrder([]);
+    setSessionOverrideReps({});
     setScreen("context");
   }
 
@@ -60,7 +91,8 @@ export default function App() {
   }
 
   function startSession() {
-    const p = buildPlan(routine, ctx, sessionSkip, sessionOverride, sessionLinks);
+    let p = buildPlan(routine, ctx, sessionSkip, sessionOverride, sessionLinks);
+    if (sessionOrder.length) p = reorderPlan(p, sessionOrder);
     setPlan(p); setIdx(0); setLogs({}); setPrs([]);
     startRef.current = Date.now(); setElapsed(0);
     setScreen("session");
@@ -75,6 +107,8 @@ export default function App() {
     setLogs({}); setPrs([]); setElapsed(0);
     setSessionSkip(new Set()); setSessionOverride({});
     setSessionLinks([]); setLinkingFrom(null);
+    setBrokenLinks(new Set());
+    setSessionSwaps({}); setSessionOrder([]); setSessionOverrideReps({});
   }
 
   function goHome() {
@@ -82,6 +116,8 @@ export default function App() {
     setLogs({}); setPrs([]); setElapsed(0);
     setSessionSkip(new Set()); setSessionOverride({});
     setSessionLinks([]); setLinkingFrom(null);
+    setBrokenLinks(new Set());
+    setSessionSwaps({}); setSessionOrder([]); setSessionOverrideReps({});
   }
 
   if (screen === "home") return <HomeScreen gd={gd} onSelect={selectRoutine} onHistory={() => setScreen("history")} />;
@@ -94,6 +130,10 @@ export default function App() {
       sessionOverride={sessionOverride} setSessionOverride={setSessionOverride}
       sessionLinks={sessionLinks} setSessionLinks={setSessionLinks}
       linkingFrom={linkingFrom} setLinkingFrom={setLinkingFrom}
+      brokenLinks={brokenLinks} setBrokenLinks={setBrokenLinks}
+      sessionSwaps={sessionSwaps} setSessionSwaps={setSessionSwaps}
+      sessionOrder={sessionOrder} setSessionOrder={setSessionOrder}
+      sessionOverrideReps={sessionOverrideReps} setSessionOverrideReps={setSessionOverrideReps}
       gd={gd} onStart={startSession} onBack={() => setScreen("context")}
     />
   );
@@ -102,6 +142,8 @@ export default function App() {
       routine={routine} ctx={ctx} plan={plan} idx={idx} setIdx={setIdx}
       logs={logs} setLogs={setLogs} prs={prs} setPrs={setPrs}
       elapsed={elapsed} gd={gd} setGd={setGd}
+      sessionSwaps={sessionSwaps} setSessionSwaps={setSessionSwaps}
+      sessionOverrideReps={sessionOverrideReps}
       onComplete={handleComplete} onAbandon={handleAbandon}
     />
   );

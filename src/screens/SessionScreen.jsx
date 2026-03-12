@@ -6,7 +6,7 @@ import { RestTimer } from '../components/RestTimer.jsx';
 import { PlateCalculator } from '../components/PlateCalculator.jsx';
 import { SwapDrawer, PlanView } from '../components/SwapDrawer.jsx';
 
-export function SessionScreen({ routine, ctx, plan, idx, setIdx, logs, setLogs, prs, setPrs, elapsed, gd, setGd, onComplete, onAbandon }) {
+export function SessionScreen({ routine, ctx, plan, idx, setIdx, logs, setLogs, prs, setPrs, elapsed, gd, setGd, sessionSwaps, setSessionSwaps, sessionOverrideReps, onComplete, onAbandon }) {
   const [w, setW] = useState("");
   const [reps, setReps] = useState(null);
   const [rir, setRir] = useState(null);
@@ -15,7 +15,6 @@ export function SessionScreen({ routine, ctx, plan, idx, setIdx, logs, setLogs, 
   const [showSwap, setShowSwap] = useState(false);
   const [showRest, setShowRest] = useState(false);
   const [restSecs, setRestSecs] = useState(0);
-  const [sessionSwaps, setSessionSwaps] = useState({});
   const [showPlanView, setShowPlanView] = useState(false);
   const [midSkip, setMidSkip] = useState(new Set());
   const [suggestedInfo, setSuggestedInfo] = useState(null);
@@ -77,7 +76,9 @@ export function SessionScreen({ routine, ctx, plan, idx, setIdx, logs, setLogs, 
   const todaySets = logs[ex.id] || [];
   const wn = parseFloat(w) || 0;
   const canLog = wn > 0 && reps !== null && rir !== null;
-  const rOpts = []; for (let r = Math.max(1, ex.rMin - 1); r <= ex.rMax + 2; r++) rOpts.push(r);
+  const overRMin = sessionOverrideReps?.[ex.id]?.rMin ?? ex.rMin;
+  const overRMax = sessionOverrideReps?.[ex.id]?.rMax ?? ex.rMax;
+  const rOpts = []; for (let r = Math.max(1, overRMin - 1); r <= overRMax + 2; r++) rOpts.push(r);
   const elStr = `${Math.floor(elapsed / 60)}:${String(elapsed % 60).padStart(2, "0")}`;
   const pct = plan.length > 0 ? (idx / plan.length) * 100 : 0;
 
@@ -118,17 +119,23 @@ export function SessionScreen({ routine, ctx, plan, idx, setIdx, logs, setLogs, 
         </div>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 6, marginBottom: 2 }}>
           <div style={{ ...BB, fontSize: 22, lineHeight: 1.1, color: T.t1 }}>{displayName}</div>
-          {hasSwap && <span style={{ ...DM, fontSize: 9, color: T.acc, marginTop: 4 }}>alternativa</span>}
+          {hasSwap && <span style={{ ...DM, fontSize: 11, color: T.acc, marginTop: 4 }}>alternativa</span>}
         </div>
         <div style={{ ...DS, color: T.t3, fontSize: 12, marginBottom: 12 }}>{ex.desc}</div>
-        <div style={{ ...BB, fontSize: 32, color: T.t1, marginBottom: 6 }}>{ex.rMin}–{ex.rMax}{ex.perSide ? " / lado" : ""} reps</div>
+        <div style={{ ...BB, fontSize: 32, color: T.t1, marginBottom: 6 }}>{overRMin}–{overRMax}{ex.perSide ? " / lado" : ""} reps</div>
         <div style={{ display: "flex", gap: 16, marginBottom: 12, alignItems: "center" }}>
           <span style={{ ...DM, fontSize: 20, color: T.acc }}>{ex.tempo}</span>
           {ex.rir !== null && <span style={{ ...DM, fontSize: 18, color: T.t2 }}>RIR {ex.rir}</span>}
         </div>
         <div style={{ background: T.bg, borderRadius: 10, padding: "10px 12px", borderLeft: `3px solid ${routine.clr}` }}>
-          <div style={{ ...DM, color: routine.clr, fontSize: 8, letterSpacing: 2, marginBottom: 4 }}>CLAVE 0.1%</div>
+          <div style={{ ...DM, color: routine.clr, fontSize: 10, letterSpacing: 2, marginBottom: 4 }}>CLAVE 0.1%</div>
           <div style={{ ...DS, color: T.t2, fontSize: 13, lineHeight: 1.6 }}>{ex.cue}</div>
+          {ex.ytUrl && (
+            <a href={ex.ytUrl} target="_blank" rel="noopener noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 8, ...DM, fontSize: 11, color: T.acc, textDecoration: "none" }}>
+              📹 <span>Ver referencia</span>
+            </a>
+          )}
         </div>
       </div>
       {ex.noLog
@@ -155,7 +162,7 @@ export function SessionScreen({ routine, ctx, plan, idx, setIdx, logs, setLogs, 
               </div>
             )}
             <div style={{ marginBottom: 12 }}>
-              <div style={{ ...DM, color: T.t3, fontSize: 9, letterSpacing: 2, marginBottom: 6 }}>PESO (lbs)</div>
+              <div style={{ ...DM, color: T.t2, fontSize: 11, letterSpacing: 2, marginBottom: 6 }}>PESO (lbs)</div>
               <input type="number" value={w} onChange={e => setW(e.target.value)} placeholder={lw || "135"}
                 style={{ background: T.bg, border: `1px solid ${w ? routine.clr : T.bd}`, borderRadius: 12, padding: "10px 14px", color: T.t1, fontSize: 44, ...BB, width: "100%", textAlign: "center", outline: "none", transition: "border-color 0.2s" }} />
               {suggestedInfo?.isSuggested && parseFloat(w) === suggestedInfo.weight && (
@@ -171,7 +178,7 @@ export function SessionScreen({ routine, ctx, plan, idx, setIdx, logs, setLogs, 
               </div>
             </div>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ ...DM, color: T.t3, fontSize: 9, letterSpacing: 2, marginBottom: 6 }}>REPS{ex.perSide ? " / LADO" : ""}</div>
+              <div style={{ ...DM, color: T.t2, fontSize: 11, letterSpacing: 2, marginBottom: 6 }}>REPS{ex.perSide ? " / LADO" : ""}</div>
               <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
                 {rOpts.map(r => (
                   <button key={r} onClick={() => setReps(r)}
@@ -182,7 +189,7 @@ export function SessionScreen({ routine, ctx, plan, idx, setIdx, logs, setLogs, 
               </div>
             </div>
             <div style={{ marginBottom: 16 }}>
-              <div style={{ ...DM, color: T.t3, fontSize: 9, letterSpacing: 2, marginBottom: 6 }}>RIR — REPS EN RESERVA</div>
+              <div style={{ ...DM, color: T.t2, fontSize: 11, letterSpacing: 2, marginBottom: 6 }}>RIR — REPS EN RESERVA</div>
               <div style={{ display: "flex", gap: 5 }}>
                 {[0, 1, 2, 3, 4].map(r => {
                   const clr = r <= 1 ? T.red : r === 2 ? T.acc : T.grn;
@@ -194,7 +201,7 @@ export function SessionScreen({ routine, ctx, plan, idx, setIdx, logs, setLogs, 
                   );
                 })}
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, ...DM, color: T.t3, fontSize: 9 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, ...DM, color: T.t2, fontSize: 11 }}>
                 <span>Al fallo</span><span>Fácil</span>
               </div>
             </div>

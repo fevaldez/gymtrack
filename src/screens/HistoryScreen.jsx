@@ -56,7 +56,7 @@ export function HistoryScreen({ gd, setGd, onBack }) {
         <div style={{ ...BB, fontSize: 40 }}>HISTORIA</div>
         <div style={{ display: "flex", gap: 24, marginTop: 8 }}>
           {[["sesiones", totalSessions], ["sets", totalSets], ["ejercicios", totalExercises]].map(([l, v]) => (
-            <div key={l}><span style={{ ...BB, fontSize: 22, color: T.acc }}>{v}</span> <span style={{ ...DM, fontSize: 9, color: T.t3 }}>{l}</span></div>
+            <div key={l}><span style={{ ...BB, fontSize: 22, color: T.acc }}>{v}</span> <span style={{ ...DM, fontSize: 11, color: T.t2 }}>{l}</span></div>
           ))}
         </div>
         <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
@@ -83,8 +83,8 @@ export function HistoryScreen({ gd, setGd, onBack }) {
                     <div onClick={() => setExpanded(isExp ? null : `day-${dayStr}`)}
                       style={{ padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
                       <div>
-                        <div style={{ ...BB, fontSize: 20 }}>{label}</div>
-                        <div style={{ ...DM, color: T.t3, fontSize: 10, marginTop: 2 }}>{entries.length} ejercicios · {totalDaySets} sets</div>
+                        <div style={{ ...BB, fontSize: 22 }}>{label}</div>
+                        <div style={{ ...DM, color: T.t2, fontSize: 12, marginTop: 2 }}>{entries.length} ejercicios · {totalDaySets} sets</div>
                       </div>
                       <div style={{ ...DM, fontSize: 14, color: T.t3 }}>{isExp ? "▲" : "▼"}</div>
                     </div>
@@ -92,11 +92,11 @@ export function HistoryScreen({ gd, setGd, onBack }) {
                       <div style={{ borderTop: `1px solid ${T.bd}`, padding: "10px 16px 14px" }}>
                         {entries.map(({ exId, session }) => (
                           <div key={exId} style={{ marginBottom: 10 }}>
-                            <div style={{ ...BB, fontSize: 15, color: T.t1, marginBottom: 4 }}>{names[exId] || exId}</div>
-                            <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                            <div style={{ ...BB, fontSize: 18, color: T.t1, marginBottom: 5 }}>{names[exId] || exId}</div>
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                               {(session.sets || []).map((s, i) => (
-                                <div key={i} style={{ background: T.s2, border: `1px solid ${T.bd}`, borderRadius: 7, padding: "4px 8px", ...DM, fontSize: 10, color: T.t2 }}>
-                                  {s.w}<span style={{ color: T.t3 }}>lb</span>×{s.reps}<span style={{ color: T.t3 }}> R{s.rir}</span>
+                                <div key={i} style={{ background: T.s2, border: `1px solid ${T.bd}`, borderRadius: 8, padding: "5px 10px", ...DM, fontSize: 12, color: T.t1 }}>
+                                  {s.w}<span style={{ color: T.t2 }}>lb</span>×{s.reps}<span style={{ color: T.t2 }}> R{s.rir}</span>
                                 </div>
                               ))}
                             </div>
@@ -130,14 +130,14 @@ export function HistoryScreen({ gd, setGd, onBack }) {
                     <div onClick={() => setExpanded(isExp ? null : `ex-${exId}`)}
                       style={{ padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ ...BB, fontSize: 18, lineHeight: 1.1 }}>{name}</div>
-                        <div style={{ ...DM, color: T.t3, fontSize: 10, marginTop: 2 }}>
+                        <div style={{ ...BB, fontSize: 22, lineHeight: 1.1 }}>{name}</div>
+                        <div style={{ ...DM, color: T.t2, fontSize: 12, marginTop: 2 }}>
                           {sessions.length} sesiones · {exTotalSets} sets · PR {maxWeight} lbs
                         </div>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0, marginLeft: 10 }}>
                         <Sparkline weights={weightsBySession} clr={T.acc} />
-                        <div style={{ ...DM, fontSize: 9, color: T.t3 }}>{days === 0 ? "Hoy" : days === 1 ? "Ayer" : days ? `Hace ${days}d` : ""}</div>
+                        <div style={{ ...DM, fontSize: 11, color: T.t2 }}>{days === 0 ? "Hoy" : days === 1 ? "Ayer" : days ? `Hace ${days}d` : ""}</div>
                       </div>
                     </div>
                     {isExp && (
@@ -146,11 +146,11 @@ export function HistoryScreen({ gd, setGd, onBack }) {
                           const d = new Date(session.date).toLocaleDateString("es", { month: "short", day: "numeric" });
                           return (
                             <div key={i} style={{ marginBottom: 10 }}>
-                              <div style={{ ...DM, color: T.t3, fontSize: 10, marginBottom: 4 }}>{d}</div>
-                              <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                              <div style={{ ...DM, color: T.t2, fontSize: 11, marginBottom: 5 }}>{d}</div>
+                              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                                 {(session.sets || []).map((s, j) => (
-                                  <div key={j} style={{ background: T.s2, border: `1px solid ${T.bd}`, borderRadius: 7, padding: "4px 8px", ...DM, fontSize: 10, color: T.t2 }}>
-                                    {s.w}<span style={{ color: T.t3 }}>lb</span>×{s.reps}<span style={{ color: T.t3 }}> R{s.rir}</span>
+                                  <div key={j} style={{ background: T.s2, border: `1px solid ${T.bd}`, borderRadius: 8, padding: "5px 10px", ...DM, fontSize: 12, color: T.t1 }}>
+                                    {s.w}<span style={{ color: T.t2 }}>lb</span>×{s.reps}<span style={{ color: T.t2 }}> R{s.rir}</span>
                                   </div>
                                 ))}
                               </div>

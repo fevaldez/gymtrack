@@ -1,12 +1,13 @@
 import { T, BB, DM, DS } from '../data/theme.js';
 import { ROUTINES } from '../data/routines.js';
 
+const APP_VERSION = "3.2";
+
 export function HomeScreen({gd,onSelect,onHistory}) {
   return(
     <div style={{minHeight:"100vh",background:T.bg,color:T.t1,...DS,maxWidth:480,margin:"0 auto"}}>
       <div style={{padding:"56px 24px 24px"}}>
-        <div style={{...DM,fontSize:10,letterSpacing:4,color:T.t3,marginBottom:4}}>V2 · GYMTRACK</div>
-        <div style={{...BB,fontSize:64,lineHeight:0.9,marginBottom:8}}>
+<div style={{...BB,fontSize:64,lineHeight:0.9,marginBottom:8}}>
           <span style={{color:T.t1}}>TUS </span><span style={{color:T.acc}}>RU</span><span style={{color:T.t1}}>TINAS</span>
         </div>
         <div style={{...DS,color:T.t3,fontSize:13,marginTop:12}}>Selecciona · configura · entrena</div>
@@ -48,6 +49,9 @@ export function HomeScreen({gd,onSelect,onHistory}) {
           </div>
           <span style={{color:T.t3,fontSize:16}}>→</span>
         </div>
+      </div>
+      <div style={{position:"fixed",bottom:8,left:12,fontSize:10,...DM,color:"#3F3F46",letterSpacing:"0.08em",pointerEvents:"none",zIndex:1}}>
+        v{APP_VERSION}
       </div>
     </div>
   );

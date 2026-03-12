@@ -46,7 +46,7 @@ export function SummaryScreen({ routine, logs, prs, elapsed, gd, onHome }) {
       )}
       {loggedExIds.length > 0 && (
         <div style={{ background: T.s1, border: `1px solid ${T.bd}`, borderRadius: 18, padding: "18px 20px", marginBottom: 12, position: "relative" }}>
-          <div style={{ ...DM, color: T.t3, fontSize: 10, letterSpacing: 2, marginBottom: 12 }}>PRÓXIMA SESIÓN</div>
+          <div style={{ ...DM, color: T.t2, fontSize: 11, letterSpacing: 2, marginBottom: 12 }}>PRÓXIMA SESIÓN</div>
           {loggedExIds.map(id => {
             const ex = findExerciseById(id);
             const sug = calcSuggestion(id, logs[id]);
@@ -54,7 +54,7 @@ export function SummaryScreen({ routine, logs, prs, elapsed, gd, onHome }) {
             return (
               <div key={id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 6, paddingBottom: 6, borderBottom: `1px solid ${T.bd}` }}>
                 <span style={{ ...DS, fontSize: 13, color: T.t1 }}>{ex.nombre}</span>
-                <span style={{ ...DM, fontSize: 13, color: sug?.action === "up" ? T.grn : T.t3 }}>
+                <span style={{ ...DM, fontSize: 13, color: sug?.action === "up" ? T.grn : T.t2 }}>
                   {sug?.action === "up" ? `→ +${sug.increment} lbs` : "mantén"}
                 </span>
               </div>
@@ -63,11 +63,11 @@ export function SummaryScreen({ routine, logs, prs, elapsed, gd, onHome }) {
         </div>
       )}
       <div style={{ background: T.s1, border: `1px solid ${T.bd}`, borderRadius: 18, padding: "18px 20px", marginBottom: 12, position: "relative" }}>
-        <div style={{ ...DM, color: T.t3, fontSize: 10, letterSpacing: 2, marginBottom: 16 }}>ESTADÍSTICAS</div>
+        <div style={{ ...DM, color: T.t2, fontSize: 11, letterSpacing: 2, marginBottom: 16 }}>ESTADÍSTICAS</div>
         <div style={{ display: "flex", gap: 28 }}>
-          <div><div style={{ ...BB, fontSize: 32, color: T.acc }}>{totalSets}</div><div style={{ ...DM, color: T.t3, fontSize: 10 }}>sets</div></div>
-          <div><div style={{ ...BB, fontSize: 32, color: T.t1 }}>{totalVol > 0 ? `${(totalVol / 1000).toFixed(1)}k` : "—"}</div><div style={{ ...DM, color: T.t3, fontSize: 10 }}>vol lbs</div></div>
-          <div><div style={{ ...BB, fontSize: 32, color: T.t2 }}>{elStr}</div><div style={{ ...DM, color: T.t3, fontSize: 10 }}>tiempo</div></div>
+          <div><div style={{ ...BB, fontSize: 32, color: T.acc }}>{totalSets}</div><div style={{ ...DM, color: T.t2, fontSize: 11 }}>sets</div></div>
+          <div><div style={{ ...BB, fontSize: 32, color: T.t1 }}>{totalVol > 0 ? `${(totalVol / 1000).toFixed(1)}k` : "—"}</div><div style={{ ...DM, color: T.t2, fontSize: 11 }}>vol lbs</div></div>
+          <div><div style={{ ...BB, fontSize: 32, color: T.t2 }}>{elStr}</div><div style={{ ...DM, color: T.t2, fontSize: 11 }}>tiempo</div></div>
         </div>
       </div>
       {(() => {

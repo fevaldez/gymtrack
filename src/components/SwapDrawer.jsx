@@ -55,28 +55,35 @@ export function PlanView({plan,idx,midSkip,setMidSkip,sessionSwaps,setSessionSwa
           {sections.map(sec=>{
             const uniqueExs=[...new Map(sec.steps.map(s=>[s.ex.id,s])).values()];
             if(!uniqueExs.length)return null;
+            const isCurrent=sec.type==="current";
             return(
               <div key={sec.type} style={{marginBottom:14}}>
-                <div style={{...DM,fontSize:9,letterSpacing:2,color:T.t3,marginBottom:6}}>{sec.label.toUpperCase()}</div>
+                <div style={{...DM,fontSize:10,letterSpacing:2,color:T.t2,marginBottom:6}}>{sec.label.toUpperCase()}</div>
                 {uniqueExs.map(step=>{
                   const ex=step.ex;
                   const isSkipped=midSkip.has(ex.id);
                   const displayName=sessionSwaps[ex.id]||ex.nombre;
                   const hasSwap=!!sessionSwaps[ex.id];
                   return(
-                    <div key={ex.id} style={{background:T.s2,border:`1px solid ${sec.type==="current"?routine.clr:T.bd}`,borderRadius:12,padding:"10px 12px",marginBottom:6,opacity:sec.type==="done"?0.4:isSkipped?0.35:1}}>
+                    <div key={ex.id} style={{
+                      background:isCurrent?`${routine.clr}12`:T.s2,
+                      border:`1px solid ${isCurrent?routine.clr:T.bd}`,
+                      borderLeft:isCurrent?`3px solid ${routine.clr}`:`1px solid ${T.bd}`,
+                      borderRadius:12,padding:"12px 14px",marginBottom:6,
+                      opacity:sec.type==="done"?0.45:isSkipped?0.35:1
+                    }}>
                       <div style={{display:"flex",alignItems:"center",gap:8}}>
                         <div style={{flex:1}}>
-                          <div style={{...BB,fontSize:16,color:sec.type==="current"?routine.clr:T.t1}}>{displayName}</div>
-                          {hasSwap&&<div style={{...DM,fontSize:9,color:T.acc}}>alternativa</div>}
-                          <div style={{...DM,fontSize:10,color:T.t3,marginTop:2}}>{ex.s}s · {ex.rMin}–{ex.rMax} · {ex.tempo}{ex.rir!==null?` · RIR ${ex.rir}`:""}</div>
+                          <div style={{...BB,fontSize:isCurrent?22:18,color:isCurrent?routine.clr:T.t1,lineHeight:1.1}}>{displayName}</div>
+                          {hasSwap&&<div style={{...DM,fontSize:10,color:T.acc,marginTop:2}}>alternativa</div>}
+                          <div style={{...DM,fontSize:12,color:T.t2,marginTop:3}}>{ex.s}s · {ex.rMin}–{ex.rMax} · {ex.tempo}{ex.rir!==null?` · RIR ${ex.rir}`:""}</div>
                         </div>
                         {sec.type==="next"&&(
                           <div style={{display:"flex",gap:6}}>
                             {ex.swaps&&ex.swaps.length>0&&(
-                              <button onClick={()=>setSwapTarget(ex)} style={{background:"none",border:`1px solid ${T.bd}`,borderRadius:8,color:T.t3,fontSize:11,padding:"4px 8px",cursor:"pointer",...DM}}>Alt →</button>
+                              <button onClick={()=>setSwapTarget(ex)} style={{background:"none",border:`1px solid ${T.bd}`,borderRadius:8,color:T.t2,fontSize:12,padding:"6px 10px",cursor:"pointer",...DM}}>Alt →</button>
                             )}
-                            <button onClick={()=>toggleSkip(ex.id)} style={{background:isSkipped?T.s1:"none",border:`1px solid ${isSkipped?T.acc:T.bd}`,borderRadius:8,color:isSkipped?T.acc:T.t3,fontSize:11,padding:"4px 8px",cursor:"pointer",...DM}}>
+                            <button onClick={()=>toggleSkip(ex.id)} style={{background:isSkipped?T.s1:"none",border:`1px solid ${isSkipped?T.acc:T.bd}`,borderRadius:8,color:isSkipped?T.acc:T.t2,fontSize:12,padding:"6px 10px",cursor:"pointer",...DM}}>
                               {isSkipped?"✓ skip":"skip"}
                             </button>
                           </div>
