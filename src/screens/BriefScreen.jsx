@@ -18,7 +18,6 @@ export function BriefScreen({
   const [dragIdx, setDragIdx] = useState(null);
   const [dragOverIdx, setDragOverIdx] = useState(null);
   const [swapTarget, setSwapTarget] = useState(null);
-  const [justMovedId, setJustMovedId] = useState(null);
 
   const plan = buildPlan(routine, ctx, sessionSkip, sessionOverride, sessionLinks);
   const exCount = [...new Set(plan.map(s => s.ex.id))].length;
@@ -115,17 +114,14 @@ export function BriefScreen({
   function doReorder(fromIdx, toIdx) {
     if (fromIdx === toIdx) return;
     const newOrder = displayExs.map(item => item.ex.id);
-    const movedId = newOrder[fromIdx];
     const [moved] = newOrder.splice(fromIdx, 1);
     newOrder.splice(toIdx, 0, moved);
     // Only update order — activePairs adjacency check handles biserie breakage implicitly.
     // sessionLinks is NOT pruned here; pairs become inactive automatically when non-adjacent.
     setSessionOrder(newOrder);
-    setJustMovedId(movedId);
   }
 
   function createLink(id1, id2) {
-    setJustMovedId(null);
     setSessionLinks(prev => {
       const f = prev.filter(([a, b]) => a !== id1 && b !== id1 && a !== id2 && b !== id2);
       return [...f, [id1, id2]];
@@ -136,7 +132,6 @@ export function BriefScreen({
     const key = [id1, id2].sort().join('|');
     setBrokenLinks(prev => new Set([...prev, key]));
     setSessionLinks(prev => prev.filter(([a, b]) => [a, b].sort().join('|') !== key));
-    setJustMovedId(null);
   }
 
   return (
@@ -155,7 +150,7 @@ export function BriefScreen({
             <div style={{ ...BB, fontSize: 28, color: T.t1 }}>~{estMin} min</div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "flex-end" }}>
               <div style={{ ...DM, color: T.t2, fontSize: 11 }}>{plan.length} sets · {exCount} ejercicios</div>
-              <button onClick={() => { setEditMode(e => !e); setJustMovedId(null); }} style={{ background: "none", border: "none", color: routine.clr, ...DM, fontSize: 12, cursor: "pointer", padding: "2px 0" }}>
+              <button onClick={() => setEditMode(e => !e)} style={{ background: "none", border: "none", color: routine.clr, ...DM, fontSize: 12, cursor: "pointer", padding: "2px 0" }}>
                 {editMode ? "Listo" : "Editar"}
               </button>
             </div>
@@ -198,14 +193,12 @@ export function BriefScreen({
             && i < displayExs.length - 1
             && areBiseriePartners(ex.id, displayExs[i + 1].ex.id);
 
-          // ⇄ only shown adjacent to the last moved exercise,
-          // and only if NEITHER exercise already has an active biserie partner
+          // ⇄ shown between any two adjacent exercises without an active biserie in edit mode
           const showLinkBtn = editMode
-            && justMovedId
+            && !showBreakBtn
             && i < displayExs.length - 1
             && !hasBiseriePartner(ex.id)
-            && !hasBiseriePartner(displayExs[i + 1].ex.id)
-            && (ex.id === justMovedId || displayExs[i + 1].ex.id === justMovedId);
+            && !hasBiseriePartner(displayExs[i + 1].ex.id);
 
           return (
             <div key={ex.id}>

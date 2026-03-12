@@ -92,6 +92,24 @@ export default function App() {
 
   function startSession() {
     let p = buildPlan(routine, ctx, sessionSkip, sessionOverride, sessionLinks);
+
+    // Patch broken schema biseries out of the plan before session starts
+    if (brokenLinks.size > 0) {
+      p = p.map((step, i, arr) => {
+        if (!step.biserie) return step;
+        const partner =
+          (arr[i + 1]?.biserie && arr[i + 1].blk.id === step.blk.id) ? arr[i + 1]
+          : (arr[i - 1]?.biserie && arr[i - 1].blk.id === step.blk.id) ? arr[i - 1]
+          : null;
+        if (!partner) return step;
+        const key = [step.ex.id, partner.ex.id].sort().join('|');
+        if (brokenLinks.has(key)) {
+          return { ...step, biserie: false, paired: null, rest: step.blk.rest };
+        }
+        return step;
+      });
+    }
+
     if (sessionOrder.length) p = reorderPlan(p, sessionOrder);
     setPlan(p); setIdx(0); setLogs({}); setPrs([]);
     startRef.current = Date.now(); setElapsed(0);
