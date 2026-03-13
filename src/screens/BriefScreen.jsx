@@ -83,8 +83,15 @@ export function BriefScreen({
       if (i1 === -1 || i2 === -1 || Math.abs(i1 - i2) !== 1) pairs.delete(key);
     }
 
+    // Remove any pair where either exercise is skipped.
+    // A skipped exercise cannot be part of an active biserie.
+    for (const key of [...pairs]) {
+      const [id1, id2] = key.split('|');
+      if (sessionSkip.has(id1) || sessionSkip.has(id2)) pairs.delete(key);
+    }
+
     return pairs;
-  }, [plan, sessionLinks, sessionOrder, brokenLinks]);
+  }, [plan, sessionLinks, sessionOrder, brokenLinks, sessionSkip]);
 
   function hasBiseriePartner(exId) {
     for (const pair of activePairs) {
@@ -197,6 +204,8 @@ export function BriefScreen({
           const showLinkBtn = editMode
             && !showBreakBtn
             && i < displayExs.length - 1
+            && !isSkipped
+            && !sessionSkip.has(displayExs[i + 1].ex.id)
             && !hasBiseriePartner(ex.id)
             && !hasBiseriePartner(displayExs[i + 1].ex.id);
 
@@ -238,7 +247,7 @@ export function BriefScreen({
                 {editMode && (
                   <div
                     style={{ color: T.t3, fontSize: 20, flexShrink: 0, width: 28, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", touchAction: "none", userSelect: "none" }}
-                    onTouchStart={e => { e.stopPropagation(); setDragIdx(i); setJustMovedId(null); }}
+                    onTouchStart={e => { e.stopPropagation(); setDragIdx(i); }}
                     onTouchMove={e => {
                       e.preventDefault();
                       const touch = e.touches[0];

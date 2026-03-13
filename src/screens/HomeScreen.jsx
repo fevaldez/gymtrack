@@ -1,7 +1,6 @@
 import { T, BB, DM, DS } from '../data/theme.js';
 import { ROUTINES } from '../data/routines.js';
 
-const APP_VERSION = "3.2";
 
 export function HomeScreen({gd,onSelect,onHistory}) {
   return(
@@ -51,7 +50,7 @@ export function HomeScreen({gd,onSelect,onHistory}) {
         </div>
       </div>
       <div style={{position:"fixed",bottom:8,left:12,fontSize:10,...DM,color:"#3F3F46",letterSpacing:"0.08em",pointerEvents:"none",zIndex:1}}>
-        v{APP_VERSION}
+        v{__APP_VERSION__}
       </div>
     </div>
   );
