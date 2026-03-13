@@ -173,7 +173,7 @@ export function BriefScreen({
           </div>
         )}
 
-        {(seenBlkIds => displayExs.map(({ ex, blk }, i) => {
+        {displayExs.map(({ ex, blk }, i) => {
           const isSkipped = sessionSkip.has(ex.id);
           const currentS = sessionOverride[ex.id] ?? ex.s;
           const curReps = sessionOverrideReps[ex.id] ?? { rMin: ex.rMin, rMax: ex.rMax };
@@ -191,9 +191,10 @@ export function BriefScreen({
           const displayName = sessionSwaps[ex.id] || ex.nombre;
           const hasSwaps = Array.isArray(ex.swaps) && ex.swaps.length > 0;
 
-          // seenBlkIds prevents duplicate block headers when exercises are reordered cross-block
+          const seenBlkIds = new Set(
+            displayExs.slice(0, i).map(item => item.blk.id)
+          );
           const showBlkHeader = !seenBlkIds.has(blk.id);
-          if (showBlkHeader) seenBlkIds.add(blk.id);
           const nextSameBlk = i + 1 < displayExs.length && displayExs[i + 1].blk.id === blk.id;
 
           // ✕ biserie — shown between two currently active biserie partners in edit mode
@@ -334,12 +335,15 @@ export function BriefScreen({
 
               {/* ✕ biserie — break active pair in edit mode */}
               {showBreakBtn && (
-                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 32, marginBottom: 8 }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, marginBottom: 8 }}>
                   <button onClick={() => breakLink(ex.id, displayExs[i + 1].ex.id)} style={{
                     background: "none", border: `1px solid ${T.bd}`, borderRadius: 6,
                     color: T.t3, ...DM, fontSize: 11, letterSpacing: "0.06em",
                     padding: "4px 12px", cursor: "pointer",
                   }}>✕ biserie</button>
+                  <div style={{ ...DM, fontSize: 9, color: T.t3, opacity: 0.5 }}>
+                    permanente · mover separa temporalmente
+                  </div>
                 </div>
               )}
 
@@ -361,7 +365,7 @@ export function BriefScreen({
               )}
             </div>
           );
-        }))(new Set())}
+        })}
       </div>
 
       {/* Swap mini-drawer */}
