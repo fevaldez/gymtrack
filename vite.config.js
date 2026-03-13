@@ -1,12 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { readFileSync } from 'fs'
-const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
+import { execSync } from 'child_process'
+
+const gitHash = execSync('git rev-parse --short HEAD').toString().trim();
+const gitDate = execSync('git log -1 --format=%cd --date=format:"%b %d"')
+  .toString().trim();
+
 export default defineConfig({
   plugins: [react()],
   base: '/gymtrack/',
   define: {
-    __APP_VERSION__: JSON.stringify(pkg.version),
+    __APP_VERSION__: JSON.stringify(`${gitDate} · ${gitHash}`),
   },
   build: {
     outDir: 'dist', sourcemap: false, minify: 'esbuild',

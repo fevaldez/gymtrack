@@ -173,7 +173,7 @@ export function BriefScreen({
           </div>
         )}
 
-        {displayExs.map(({ ex, blk }, i) => {
+        {(seenBlkIds => displayExs.map(({ ex, blk }, i) => {
           const isSkipped = sessionSkip.has(ex.id);
           const currentS = sessionOverride[ex.id] ?? ex.s;
           const curReps = sessionOverrideReps[ex.id] ?? { rMin: ex.rMin, rMax: ex.rMax };
@@ -191,8 +191,9 @@ export function BriefScreen({
           const displayName = sessionSwaps[ex.id] || ex.nombre;
           const hasSwaps = Array.isArray(ex.swaps) && ex.swaps.length > 0;
 
-          const prevBlkId = i > 0 ? displayExs[i - 1].blk.id : null;
-          const showBlkHeader = prevBlkId !== blk.id;
+          // seenBlkIds prevents duplicate block headers when exercises are reordered cross-block
+          const showBlkHeader = !seenBlkIds.has(blk.id);
+          if (showBlkHeader) seenBlkIds.add(blk.id);
           const nextSameBlk = i + 1 < displayExs.length && displayExs[i + 1].blk.id === blk.id;
 
           // ✕ biserie — shown between two currently active biserie partners in edit mode
@@ -360,7 +361,7 @@ export function BriefScreen({
               )}
             </div>
           );
-        })}
+        }))(new Set())}
       </div>
 
       {/* Swap mini-drawer */}
