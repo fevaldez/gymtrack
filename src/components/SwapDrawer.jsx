@@ -33,30 +33,46 @@ export function SwapDrawer({ex,sessionSwaps,setSessionSwaps,onClose}) {
   );
 }
 
-export function PlanView({ plan, idx, setPlan, midSkip, setMidSkip, sessionSwaps, setSessionSwaps, routine, onClose }) {
+export function PlanView({plan,idx,setPlan,midSkip,setMidSkip,sessionSwaps,setSessionSwaps,routine,onClose}) {
   const [dragIdx, setDragIdx] = useState(null);
   const [dragOverIdx, setDragOverIdx] = useState(null);
   const [swapTarget, setSwapTarget] = useState(null);
 
+  // ── GROUP UPCOMING STEPS BY EXERCISE ──────────────────
+  // Each group = all remaining sets for one exercise.
+  // Biserie sets interleave A,B,A,B — we group by exercise
+  // across the full upcoming slice, preserving order of
+  // first appearance.
+  const upcomingSteps = plan.slice(idx + 1);
+
   function buildGroups(steps) {
-    const groups = [];
-    let i = 0;
-    while (i < steps.length) {
-      const exId = steps[i].ex.id;
-      const group = [];
-      while (i < steps.length && steps[i].ex.id === exId) {
-        group.push(steps[i]);
-        i++;
+    const seen = new Map();
+    const order = [];
+    for (const step of steps) {
+      if (!seen.has(step.ex.id)) {
+        seen.set(step.ex.id, []);
+        order.push(step.ex.id);
       }
-      groups.push(group);
+      seen.get(step.ex.id).push(step);
     }
-    return groups;
+    return order.map(id => seen.get(id));
   }
 
-  const upcomingSteps = plan.slice(idx + 1);
   const groups = buildGroups(upcomingSteps);
 
+  // ── BISERIE DETECTION ─────────────────────────────────
+  // Two adjacent groups are active biserie partners if both
+  // have biserie:true AND share the same blk.id.
+  function areAdjacentBiserie(i) {
+    if (i >= groups.length - 1) return false;
+    const a = groups[i][0], b = groups[i+1][0];
+    return a.biserie && b.biserie && a.blk.id === b.blk.id;
+  }
+
+  // ── REORDER ──────────────────────────────────────────
   function doReorder(fromIdx, toIdx) {
+    setDragIdx(null);
+    setDragOverIdx(null);
     if (fromIdx === toIdx) return;
     const newGroups = [...groups];
     const [moved] = newGroups.splice(fromIdx, 1);
@@ -67,144 +83,193 @@ export function PlanView({ plan, idx, setPlan, midSkip, setMidSkip, sessionSwaps
     ]);
   }
 
+  // ── BREAK BISERIE ─────────────────────────────────────
+  // Only patches upcoming steps. Identifies the pair by
+  // BOTH exIds + same blk.id to avoid breaking unrelated
+  // biseries with similar block structure.
   function breakBiserie(exId1, exId2) {
     setPlan(prev => prev.map((step, i) => {
       if (i <= idx) return step;
       if (step.ex.id === exId1 || step.ex.id === exId2) {
-        return { ...step, biserie: false, paired: null, rest: step.blk.rest };
+        return { ...step, biserie: false, paired: null,
+                 rest: step.blk.rest };
       }
       return step;
     }));
   }
 
-  function areAdjacentBiserie(i) {
-    if (i >= groups.length - 1) return false;
-    const a = groups[i][0], b = groups[i + 1][0];
-    return a.biserie && b.biserie && a.blk.id === b.blk.id;
+  // ── CREATE BISERIE (re-form or ad-hoc) ───────────────
+  function createLink(exId1, exId2) {
+    const g1 = groups.find(g => g[0].ex.id === exId1);
+    const g2 = groups.find(g => g[0].ex.id === exId2);
+    if (!g1 || !g2) return;
+    const name1 = g1[0].ex.nombre;
+    const name2 = g2[0].ex.nombre;
+    const pairRest = Math.max(g1[0].blk.rest||0, g2[0].blk.rest||0);
+    setPlan(prev => prev.map((step, i) => {
+      if (i <= idx) return step;
+      if (step.ex.id === exId1)
+        return { ...step, biserie: true, paired: name2, rest: 0 };
+      if (step.ex.id === exId2)
+        return { ...step, biserie: true, paired: name1, rest: pairRest };
+      return step;
+    }));
   }
+
+  // ── SECTIONS ─────────────────────────────────────────
+  const doneSec  = [...new Map(plan.slice(0,idx).map(s=>[s.ex.id,s])).values()];
+  const currStep = plan[idx];
 
   function toggleSkip(exId) {
     if (midSkip.has(exId)) { setMidSkip(prev => { const n = new Set(prev); n.delete(exId); return n; }); }
     else { setMidSkip(prev => new Set([...prev, exId])); }
   }
 
-  const doneExs = [...new Map(plan.slice(0, idx).map(s => [s.ex.id, s])).values()];
-  const currentStep = plan[idx];
-
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 150, display: "flex", alignItems: "flex-end" }} onClick={onClose}>
-      <div style={{ background: T.s1, borderRadius: "20px 20px 0 0", padding: "20px 16px 48px", width: "100%", maxWidth: 480, margin: "0 auto", border: `1px solid ${T.bd}`, maxHeight: "85vh", display: "flex", flexDirection: "column" }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <div style={{ ...BB, fontSize: 24 }}>PLAN DE SESIÓN</div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: T.t3, fontSize: 20, cursor: "pointer" }}>✕</button>
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",zIndex:150,display:"flex",alignItems:"flex-end"}} onClick={onClose}>
+      <div style={{background:T.s1,borderRadius:"20px 20px 0 0",padding:"20px 16px 48px",width:"100%",maxWidth:480,margin:"0 auto",border:`1px solid ${T.bd}`,maxHeight:"85vh",display:"flex",flexDirection:"column"}} onClick={e=>e.stopPropagation()}>
+
+        {/* Header */}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+          <div style={{...BB,fontSize:24}}>PLAN DE SESIÓN</div>
+          <button onClick={onClose} style={{background:"none",border:"none",color:T.t3,fontSize:20,cursor:"pointer"}}>✕</button>
         </div>
-        <div style={{ overflowY: "auto", flex: 1 }}>
+
+        <div style={{overflowY:"auto",flex:1}}>
 
           {/* COMPLETADOS */}
-          {doneExs.length > 0 && (
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ ...DM, fontSize: 10, letterSpacing: 2, color: T.t2, marginBottom: 6 }}>COMPLETADOS</div>
-              {doneExs.map(step => {
-                const ex = step.ex;
-                return (
-                  <div key={ex.id} style={{ background: T.s2, border: `1px solid ${T.bd}`, borderRadius: 12, padding: "12px 14px", marginBottom: 6, opacity: 0.45 }}>
-                    <div style={{ ...BB, fontSize: 18, color: T.t1, lineHeight: 1.1 }}>{sessionSwaps[ex.id] || ex.nombre}</div>
-                    <div style={{ ...DM, fontSize: 12, color: T.t2, marginTop: 3 }}>{ex.s}s · {ex.rMin}–{ex.rMax} · {ex.tempo}{ex.rir !== null ? ` · RIR ${ex.rir}` : ""}</div>
-                  </div>
-                );
-              })}
+          {doneSec.length > 0 && (
+            <div style={{marginBottom:14}}>
+              <div style={{...DM,fontSize:10,letterSpacing:2,color:T.t2,marginBottom:6}}>COMPLETADOS</div>
+              {doneSec.map(step => (
+                <div key={step.ex.id} style={{background:T.s2,border:`1px solid ${T.bd}`,borderRadius:12,padding:"10px 14px",marginBottom:6,opacity:0.4}}>
+                  <div style={{...BB,fontSize:16,color:T.t1}}>{sessionSwaps[step.ex.id]||step.ex.nombre}</div>
+                </div>
+              ))}
             </div>
           )}
 
           {/* ACTUAL */}
-          {currentStep && (
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ ...DM, fontSize: 10, letterSpacing: 2, color: T.t2, marginBottom: 6 }}>ACTUAL</div>
-              <div style={{ background: `${routine.clr}12`, border: `1px solid ${routine.clr}`, borderLeft: `3px solid ${routine.clr}`, borderRadius: 12, padding: "12px 14px", marginBottom: 6 }}>
-                <div style={{ ...BB, fontSize: 22, color: routine.clr, lineHeight: 1.1 }}>{sessionSwaps[currentStep.ex.id] || currentStep.ex.nombre}</div>
-                {sessionSwaps[currentStep.ex.id] && <div style={{ ...DM, fontSize: 10, color: T.acc, marginTop: 2 }}>alternativa</div>}
-                <div style={{ ...DM, fontSize: 12, color: T.t2, marginTop: 3 }}>{currentStep.ex.s}s · {currentStep.ex.rMin}–{currentStep.ex.rMax} · {currentStep.ex.tempo}{currentStep.ex.rir !== null ? ` · RIR ${currentStep.ex.rir}` : ""}</div>
+          {currStep && (
+            <div style={{marginBottom:14}}>
+              <div style={{...DM,fontSize:10,letterSpacing:2,color:T.t2,marginBottom:6}}>ACTUAL</div>
+              <div style={{background:`${routine.clr}12`,border:`1px solid ${routine.clr}`,borderLeft:`3px solid ${routine.clr}`,borderRadius:12,padding:"12px 14px",marginBottom:6}}>
+                <div style={{...BB,fontSize:20,color:routine.clr}}>{sessionSwaps[currStep.ex.id]||currStep.ex.nombre}</div>
+                <div style={{...DM,fontSize:11,color:T.t2,marginTop:3}}>{currStep.ex.s}s · {currStep.ex.rMin}–{currStep.ex.rMax} · {currStep.ex.tempo}</div>
               </div>
             </div>
           )}
 
           {/* PRÓXIMOS */}
           {groups.length > 0 && (
-            <div>
-              <div style={{ ...DM, fontSize: 10, letterSpacing: 2, color: T.t2, marginBottom: 6 }}>PRÓXIMOS</div>
+            <div style={{marginBottom:14}}>
+              <div style={{...DM,fontSize:10,letterSpacing:2,color:T.t2,marginBottom:6}}>PRÓXIMOS</div>
               {groups.map((group, i) => {
                 const ex = group[0].ex;
                 const isSkipped = midSkip.has(ex.id);
                 const displayName = sessionSwaps[ex.id] || ex.nombre;
-                const inBiserie = group[0].biserie;
+                const hasSwaps = Array.isArray(ex.swaps) && ex.swaps.length > 0;
+                const inBiserie = areAdjacentBiserie(i)
+                  || (i > 0 && areAdjacentBiserie(i - 1));
                 const isDragging = dragIdx === i;
                 const isDragOver = dragOverIdx === i && dragIdx !== null && dragIdx !== i;
                 const showBreakBtn = areAdjacentBiserie(i);
+                const showLinkBtn = !showBreakBtn
+                  && i < groups.length - 1
+                  && !isSkipped
+                  && !midSkip.has(groups[i+1][0].ex.id)
+                  && !groups[i][0].biserie
+                  && !groups[i+1][0].biserie;
+
                 return (
                   <div key={ex.id}>
+                    {/* Drop indicator */}
                     {isDragOver && (
-                      <div style={{ height: 2, background: routine.clr, borderRadius: 1, marginBottom: 4, transition: "opacity 0.15s" }} />
+                      <div style={{height:2,background:routine.clr,borderRadius:1,marginBottom:4}}/>
                     )}
+
+                    {/* Exercise card */}
                     <div
                       data-group-index={i}
                       style={{
-                        background: T.s2,
-                        border: `1px solid ${T.bd}`,
-                        borderLeft: inBiserie && !isSkipped ? `3px solid ${routine.clr}` : undefined,
-                        borderRadius: 12,
-                        marginBottom: showBreakBtn ? 0 : 6,
-                        padding: "12px 14px",
+                        background:T.s2,
+                        border:`1px solid ${T.bd}`,
+                        borderLeft: inBiserie && !isSkipped
+                          ? `3px solid ${routine.clr}`
+                          : `1px solid ${T.bd}`,
+                        borderRadius:12,
+                        padding:"12px 14px",
+                        marginBottom: (showBreakBtn||showLinkBtn) ? 0 : 6,
                         opacity: isDragging ? 0.4 : isSkipped ? 0.35 : 1,
-                        display: "flex",
-                        alignItems: "flex-start",
-                        gap: 10,
+                        display:"flex",alignItems:"center",gap:8,
                       }}>
+
                       {/* Drag handle */}
                       <div
-                        style={{ color: T.t3, fontSize: 20, flexShrink: 0, width: 28, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", touchAction: "none", userSelect: "none" }}
-                        onTouchStart={e => { e.stopPropagation(); setDragIdx(i); }}
-                        onTouchMove={e => {
+                        style={{color:T.t3,fontSize:20,flexShrink:0,width:28,minHeight:44,display:"flex",alignItems:"center",justifyContent:"center",cursor:"grab",touchAction:"none",userSelect:"none"}}
+                        onTouchStart={e=>{e.stopPropagation();setDragIdx(i);}}
+                        onTouchMove={e=>{
                           e.preventDefault();
-                          const touch = e.touches[0];
-                          const el = document.elementFromPoint(touch.clientX, touch.clientY);
-                          const raw = el?.closest('[data-group-index]')?.getAttribute('data-group-index');
-                          if (raw !== null && raw !== undefined) setDragOverIdx(Number(raw));
+                          const touch=e.touches[0];
+                          const el=document.elementFromPoint(touch.clientX,touch.clientY);
+                          const raw=el?.closest('[data-group-index]')?.getAttribute('data-group-index');
+                          if(raw!=null) setDragOverIdx(Number(raw));
                         }}
-                        onTouchEnd={() => {
-                          if (dragIdx !== null && dragOverIdx !== null && dragIdx !== dragOverIdx) {
-                            doReorder(dragIdx, dragOverIdx);
+                        onTouchEnd={()=>{
+                          if(dragIdx!==null && dragOverIdx!==null && dragIdx!==dragOverIdx){
+                            doReorder(dragIdx,dragOverIdx);
                           }
                           setDragIdx(null);
                           setDragOverIdx(null);
                         }}
                       >≡</div>
+
                       {/* Content */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ ...BB, fontSize: 18, color: isSkipped ? T.t3 : T.t1, lineHeight: 1.1 }}>{displayName}</div>
-                        {!!sessionSwaps[ex.id] && <div style={{ ...DM, fontSize: 10, color: T.acc, marginTop: 2 }}>alternativa</div>}
-                        <div style={{ ...DM, fontSize: 12, color: T.t2, marginTop: 3 }}>{group.length}s · {ex.rMin}–{ex.rMax} · {ex.tempo}{ex.rir !== null ? ` · RIR ${ex.rir}` : ""}</div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{...BB,fontSize:17,color:T.t1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{displayName}</div>
+                        <div style={{...DM,fontSize:11,color:T.t2,marginTop:2}}>
+                          {group.length}s · {ex.rMin}–{ex.rMax} reps · {ex.tempo}{ex.rir!==null?` · RIR ${ex.rir}`:""}
+                        </div>
+                        {inBiserie && !isSkipped && (() => {
+                          const partnerGroup = showBreakBtn
+                            ? groups[i + 1]
+                            : i > 0 && areAdjacentBiserie(i - 1)
+                            ? groups[i - 1]
+                            : null;
+                          const partnerName = partnerGroup
+                            ? (sessionSwaps[partnerGroup[0].ex.id] || partnerGroup[0].ex.nombre)
+                            : group[0].paired;
+                          return (
+                            <div style={{...DM,fontSize:10,color:routine.clr,marginTop:2}}>
+                              biserie → {partnerName}
+                            </div>
+                          );
+                        })()}
                       </div>
-                      {/* Action buttons */}
-                      <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                        {ex.swaps?.length > 0 && (
-                          <button onClick={() => setSwapTarget(ex)} style={{ background: "none", border: `1px solid ${T.bd}`, borderRadius: 8, color: T.t2, fontSize: 12, padding: "6px 10px", cursor: "pointer", ...DM }}>Alt →</button>
+
+                      {/* Actions */}
+                      <div style={{display:"flex",gap:6,flexShrink:0}}>
+                        {hasSwaps && (
+                          <button onClick={()=>setSwapTarget(ex)} style={{background:"none",border:`1px solid ${T.bd}`,borderRadius:8,color:T.t2,...DM,fontSize:11,padding:"6px 10px",cursor:"pointer"}}>Alt</button>
                         )}
-                        <button onClick={() => toggleSkip(ex.id)} style={{ background: isSkipped ? T.s1 : "none", border: `1px solid ${isSkipped ? T.acc : T.bd}`, borderRadius: 8, color: isSkipped ? T.acc : T.t2, fontSize: 12, padding: "6px 10px", cursor: "pointer", ...DM }}>
-                          {isSkipped ? "✓ skip" : "skip"}
+                        <button onClick={()=>toggleSkip(ex.id)} style={{background:isSkipped?`${T.acc}18`:"none",border:`1px solid ${isSkipped?T.acc:T.bd}`,borderRadius:8,color:isSkipped?T.acc:T.t2,...DM,fontSize:11,padding:"6px 10px",cursor:"pointer"}}>
+                          {isSkipped?"✓ skip":"skip"}
                         </button>
                       </div>
                     </div>
-                    {/* ✕ biserie between active adjacent pairs */}
+
+                    {/* ✕ biserie */}
                     {showBreakBtn && (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, marginBottom: 6 }}>
-                        <button onClick={() => breakBiserie(group[0].ex.id, groups[i + 1][0].ex.id)} style={{
-                          background: "none", border: `1px solid ${T.bd}`, borderRadius: 6,
-                          color: T.t3, ...DM, fontSize: 11, letterSpacing: "0.06em",
-                          padding: "4px 12px", cursor: "pointer",
-                        }}>✕ biserie</button>
-                        <div style={{ ...DM, fontSize: 9, color: T.t3, opacity: 0.5 }}>
-                          permanente · mover separa temporalmente
-                        </div>
+                      <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,marginBottom:6}}>
+                        <button onClick={()=>breakBiserie(ex.id,groups[i+1][0].ex.id)} style={{background:"none",border:`1px solid ${T.bd}`,borderRadius:6,color:T.t3,...DM,fontSize:11,letterSpacing:"0.06em",padding:"4px 12px",cursor:"pointer"}}>✕ biserie</button>
+                        <div style={{...DM,fontSize:9,color:T.t3,opacity:0.5}}>permanente · mover separa temporalmente</div>
+                      </div>
+                    )}
+
+                    {/* ⇄ re-form or create biserie */}
+                    {showLinkBtn && (
+                      <div style={{display:"flex",justifyContent:"center",alignItems:"center",height:28,marginBottom:6}}>
+                        <button onClick={()=>createLink(ex.id,groups[i+1][0].ex.id)} style={{background:"none",border:"none",color:routine.clr,fontSize:20,cursor:"pointer",padding:"0 16px",opacity:0.8}}>⇄</button>
                       </div>
                     )}
                   </div>
@@ -212,11 +277,11 @@ export function PlanView({ plan, idx, setPlan, midSkip, setMidSkip, sessionSwaps
               })}
             </div>
           )}
-
         </div>
       </div>
+
       {swapTarget && (
-        <SwapDrawer ex={swapTarget} sessionSwaps={sessionSwaps} setSessionSwaps={setSessionSwaps} onClose={() => setSwapTarget(null)} />
+        <SwapDrawer ex={swapTarget} sessionSwaps={sessionSwaps} setSessionSwaps={setSessionSwaps} onClose={()=>setSwapTarget(null)}/>
       )}
     </div>
   );

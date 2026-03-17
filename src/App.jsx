@@ -91,6 +91,7 @@ export default function App() {
   }
 
   function startSession() {
+    window.scrollTo({ top: 0, behavior: "instant" });
     let p = buildPlan(routine, ctx, sessionSkip, sessionOverride, sessionLinks);
 
     // Patch broken schema biseries out of the plan before session starts
