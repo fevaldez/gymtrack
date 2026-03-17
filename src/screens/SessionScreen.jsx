@@ -6,7 +6,7 @@ import { RestTimer } from '../components/RestTimer.jsx';
 import { PlateCalculator } from '../components/PlateCalculator.jsx';
 import { SwapDrawer, PlanView } from '../components/SwapDrawer.jsx';
 
-export function SessionScreen({ routine, ctx, plan, idx, setIdx, logs, setLogs, prs, setPrs, elapsed, gd, setGd, sessionSwaps, setSessionSwaps, sessionOverrideReps, onComplete, onAbandon }) {
+export function SessionScreen({ routine, ctx, plan, idx, setIdx, setPlan, logs, setLogs, prs, setPrs, elapsed, gd, setGd, sessionSwaps, setSessionSwaps, sessionOverrideReps, onComplete, onAbandon }) {
   const [w, setW] = useState("");
   const [reps, setReps] = useState(null);
   const [rir, setRir] = useState(null);
@@ -219,7 +219,7 @@ export function SessionScreen({ routine, ctx, plan, idx, setIdx, logs, setLogs, 
       {showPlates && <PlateCalculator onSelectWeight={v => { setW(String(v)); setSuggestedInfo(s => s ? { ...s, _override: true } : s); }} onClose={() => setShowPlates(false)} />}
       {showSwap && <SwapDrawer ex={ex} sessionSwaps={sessionSwaps} setSessionSwaps={setSessionSwaps} onClose={() => setShowSwap(false)} />}
       {showRest && <RestTimer secs={restSecs} next={nextStep} onDone={advance} onSkip={advance} />}
-      {showPlanView && <PlanView plan={plan} idx={idx} midSkip={midSkip} setMidSkip={setMidSkip} sessionSwaps={sessionSwaps} setSessionSwaps={setSessionSwaps} routine={routine} onClose={() => setShowPlanView(false)} />}
+      {showPlanView && <PlanView plan={plan} idx={idx} setPlan={setPlan} midSkip={midSkip} setMidSkip={setMidSkip} sessionSwaps={sessionSwaps} setSessionSwaps={setSessionSwaps} routine={routine} onClose={() => setShowPlanView(false)} />}
     </div>
   );
 }

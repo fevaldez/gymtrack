@@ -158,6 +158,7 @@ export default function App() {
   if (screen === "session" && plan[idx]) return (
     <SessionScreen
       routine={routine} ctx={ctx} plan={plan} idx={idx} setIdx={setIdx}
+      setPlan={setPlan}
       logs={logs} setLogs={setLogs} prs={prs} setPrs={setPrs}
       elapsed={elapsed} gd={gd} setGd={setGd}
       sessionSwaps={sessionSwaps} setSessionSwaps={setSessionSwaps}
